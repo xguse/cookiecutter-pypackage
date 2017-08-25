@@ -15,12 +15,19 @@
 
 import sys
 import os
+import datetime as dt
+from pathlib import Path
+import shlex
 
-# If extensions (or modules to document with autodoc) are in another
-# directory, add these directories to sys.path here. If the directory is
-# relative to the documentation root, use os.path.abspath to make it
-# absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+from sphinx.apidoc import main as sphinx_apidoc
+from recommonmark.parser import CommonMarkParser
+
+from logzero import logger as log
+
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+# sys.path.insert(0, os.path.abspath('.'))
 
 # Get the project root dir, which is the parent dir of this
 cwd = os.getcwd()
@@ -35,18 +42,50 @@ import {{ cookiecutter.project_slug }}
 
 # -- General configuration ---------------------------------------------
 
+# Set things up for RTD to be able to autogenerate our api-docs
+def run_apidoc(_):
+    cur_dir = Path(__file__).parent.resolve()
+    module_path = cur_dir.parent / "src/veoibd_synapse"
+    cmd_opts = "-M -f -o {cur_dir} {module_path} -H 'Source Code Documentation'"
+    opt_list = shlex.split(cmd_opts.format(cur_dir=str(cur_dir),
+                                           module_path=str(module_path)))
+    sphinx_apidoc(opt_list)
+
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.viewcode',
+              'sphinx.ext.napoleon']
+
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = True
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = True
+napoleon_use_admonition_for_notes = True
+napoleon_use_admonition_for_references = True
+napoleon_use_ivar = True
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+source_suffix = ['.rst', '.md']
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -56,7 +95,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'{{ cookiecutter.project_name }}'
-copyright = u"{% now 'local', '%Y' %}, {{ cookiecutter.full_name }}"
+copyright = u"{year}, {{ cookiecutter.full_name }}".format(year=dt.datetime.now().year)
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -111,7 +150,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
