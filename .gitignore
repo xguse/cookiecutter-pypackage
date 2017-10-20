@@ -88,6 +88,9 @@ docs/_build/
 ## mpeltonen/sbt-idea plugin
 .idea_modules/
 
+# Other IDEs
+.vscode/
+
 # PyBuilder
 target/
 
