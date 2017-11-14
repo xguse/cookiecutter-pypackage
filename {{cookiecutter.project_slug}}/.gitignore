@@ -61,5 +61,11 @@ target/
 # Pycharm
 .idea
 
+# MS vscode
+.vscode
+
+# Linting
+.mypy_cache/
+
 # pyenv python configuration file
 .python-version

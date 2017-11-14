@@ -97,3 +97,6 @@ target/
 # Cookiecutter
 output/
 python_boilerplate/
+
+# Linting
+.mypy_cache/
