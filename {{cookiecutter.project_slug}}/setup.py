@@ -4,7 +4,10 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
+import inspect
 from pathlib import Path
+
+HOME_DIR = Path(inspect.getfile(inspect.currentframe())).parent
 
 
 def filter_req_paths(paths, func):
@@ -38,26 +41,12 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    {%- if cookiecutter.command_line_interface|lower == 'click' %}
-    'Click>=6.0',
-    {%- endif %}
-    # TODO: put package requirements here
-]
+requirements = filter_req_paths(paths=[HOME_DIR / "requirements.txt",
+                                       HOME_DIR / "requirements.pip.txt"], func=is_pipable)
 
-setup_requirements = [
-{%- if cookiecutter.use_pytest == 'y' %}
-    'pytest-runner',
-{%- endif %}
-    # TODO({{ cookiecutter.github_username }}): put setup requirements (distutils extensions, etc.) here
-]
+setup_requirements = ["pytest-runner"]
 
-test_requirements = [
-{%- if cookiecutter.use_pytest == 'y' %}
-    'pytest',
-{%- endif %}
-    # TODO: put package test requirements here
-]
+test_requirements = test_requirements = ["pytest"]
 
 {%- set license_classifiers = {
     'MIT license': 'License :: OSI Approved :: MIT License',
