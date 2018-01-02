@@ -4,6 +4,33 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
+from pathlib import Path
+
+
+def filter_req_paths(paths, func):
+    """Return list of filtered libs."""
+    if not isinstance(paths, list):
+        raise ValueError("Paths must be a list of paths.")
+
+    libs = set()
+    junk = set(['\n'])
+    for p in paths:
+        with p.open(mode='r') as reqs:
+            lines = set([line for line in reqs if func(line)])
+            libs.update(lines)
+
+    return list(libs - junk)
+
+
+def is_pipable(line):
+    """Filter for pipable reqs."""
+    if "# not_pipable" in line:
+        return False
+    elif line.startswith('#'):
+        return False
+    else:
+        return True
+
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
