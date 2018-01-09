@@ -169,11 +169,14 @@ install-dev-reqs:
 
 
 ## serve the jupyter notebook
-serve-notebook:
+jupyter-notebook:
 	source activate $(CONDA_ENV_NAME) && \
 	jupyter notebook --notebook-dir notebooks
 
-
+## serve the jupyter lab
+jupyter-lab:
+	source activate $(CONDA_ENV_NAME) && \
+	jupyter lab --notebook-dir notebooks
 
 ## uninstalls virtual environments and requirements
 uninstall-conda-env: error_if_active_conda_env
