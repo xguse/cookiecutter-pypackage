@@ -1,8 +1,9 @@
-=======
+*******
 History
-=======
+*******
 
-{{ cookiecutter.version }} ({% now 'local' %})
-------------------
+v{{ cookiecutter.version }} / {% now 'local' %}
+===================
 
-* First release on PyPI.
+
+* First commit
