@@ -64,7 +64,7 @@ setup(
     author="{{ cookiecutter.full_name.replace('\"', '\\\"') }}",
     author_email='{{ cookiecutter.email }}',
     url='https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}',
-    packages=find_packages(include=['{{ cookiecutter.project_slug }}']),
+    packages=find_packages(),
     {%- if 'no' not in cookiecutter.command_line_interface|lower %}
     entry_points={
         'console_scripts': [
@@ -86,7 +86,6 @@ setup(
         '{{ license_classifiers[cookiecutter.open_source_license] }}',
 {%- endif %}
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',

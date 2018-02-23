@@ -5,5 +5,4 @@ History
 v{{ cookiecutter.version }} / {% now 'local' %}
 ===================
 
-
-* First commit
+* initial skeleton built with `cookiecutter https://github.com/xguse/cookiecutter-pypackage`

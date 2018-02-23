@@ -11,6 +11,8 @@
 # LibreOffice lock files
 .~lock.*
 
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -71,8 +73,21 @@ docs/_build/
 # PyBuilder
 target/
 
+# DotEnv configuration
+.env
+
+# Database
+*.db
+*.rdb
+
 # Pycharm
 .idea
+
+# Snakemake
+.snakemake/
+
+# IPython NB Checkpoints
+.ipynb_checkpoints/
 
 # MS vscode
 .vscode

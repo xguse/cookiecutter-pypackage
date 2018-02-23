@@ -6,6 +6,8 @@
 #################################################################################
 SHELL := /bin/bash
 
+
+
 PACKAGE_NAME = {{ cookiecutter.project_slug }}
 CONDA_ENV_NAME = $(PACKAGE_NAME)
 CONDA_ROOT = $(shell conda info --root)
@@ -138,9 +140,6 @@ install: clean install-conda-env install-jupyter-kernel install-pip-reqs install
 
 install-after-conda: install-jupyter-kernel install-pip-reqs install-dev-reqs install-pip-editable
 
-install-pip-editable:
-	source activate $(CONDA_ENV_NAME) && \
-	pip install -e .
 
 
 error_if_active_conda_env:
@@ -151,6 +150,10 @@ endif
 
 install-conda-env:
 	conda create -n $(CONDA_ENV_NAME) 'python >=3.6' --file requirements.txt --yes
+
+install-pip-editable:
+	source activate $(CONDA_ENV_NAME) && \
+	pip install -e .
 
 install-pip-reqs:
 	source activate $(CONDA_ENV_NAME) && \
@@ -179,7 +182,9 @@ jupyter-lab:
 	jupyter lab --notebook-dir jupyter
 
 ## uninstalls virtual environments and requirements
-uninstall-conda-env: error_if_active_conda_env
+uninstall: error_if_active_conda_env uninstall-conda-env
+
+uninstall-conda-env:
 	source activate $(CONDA_ENV_NAME); \
 	rm -rf $$(jupyter --data-dir)/kernels/$(CONDA_ENV_NAME); \
 	rm -rf $(CONDA_ENV_DIR)
