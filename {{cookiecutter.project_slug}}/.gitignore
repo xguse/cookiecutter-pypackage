@@ -59,6 +59,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+.pytest_cache
 
 # Translations
 *.mo
@@ -91,6 +92,7 @@ target/
 
 # MS vscode
 .vscode
+*.code-workspace
 
 # Linting
 .mypy_cache/
