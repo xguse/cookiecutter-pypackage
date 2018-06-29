@@ -3,8 +3,10 @@ pandas
 numpy
 munch
 seaborn
+plotnine
 numexpr
 numpy
 xlrd
 xlwt
 tqdm>=4.10.0
+attrs

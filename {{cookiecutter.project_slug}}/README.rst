@@ -36,13 +36,14 @@ Install for Development
 -----------------------
 
 #. Install and become familiar with `conda/Anaconda <https://conda.io/docs/user-guide/install/index.html>`_.
-#. Fork the repository to your github by clicking the "Fork" button at the top right of this project's github page.
-#. Clone your forked repo to your dev computer: ``git clone git@github.com:YOUR_GITHUB_NAME/{{ cookiecutter.project_slug }}.git``.
-#. Enter your freshly cloned {{ cookiecutter.project_name }} directory: ``cd {{ cookiecutter.project_slug }}``.
-#. Run ``make help`` to see most of the ``make`` targets available.
-#. Running ``make install``. This creates and registers a ``conda`` environment named {{ cookiecutter.project_slug }}. Into that conda environment, it installs all of the needed libraries to run and develop {{ cookiecutter.project_name }}.
-#. To uninstall your dev environment just run ``make uninstall-conda-env``. All traces of the environment should be erased.
-#. Remember to activate the ``conda`` env before you try to use or interact with {{ cookiecutter.project_name }} or you will not have access to it.
+    #. You will need to have ``pyinvoke`` installed to run the project automation.
+#. (Optional) Fork the repository to your github by clicking the "Fork" button at the top right of this project's github page.
+#. Clone the repo to your dev computer: ``git clone git@github.com:RESPECTIVE_ENTITY/{{ cookiecutter.project_slug }}.git``.
+#. Enter your freshly cloned {{ cookiecutter.project_slug }} directory: ``cd {{ cookiecutter.project_slug }}``.
+#. Run ``inv -l`` to see most of the automated tasks available.
+#. Running ``inv install`` creates and registers a ``conda`` environment named ``{{ cookiecutter.project_slug }}``. Into that conda environment, it installs all of the needed libraries to run and develop ``{{ cookiecutter.project_slug }}``.
+#. To uninstall your dev environment just run ``inv uninstall``. All traces of the environment should be erased.
+#. Remember to activate the ``conda`` env before you try to use or interact with ``{{ cookiecutter.project_slug }}`` (outside of using ``invoke``) or you will not have access to it.
 
 Credits
 ---------
