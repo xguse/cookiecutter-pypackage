@@ -20,7 +20,7 @@ except KeyError:
     MY_CONDA_ROOT = list(HOME.glob("*naconda*/"))[0]
 
 PACKAGE_NAME = "{{ cookiecutter.project_slug }}"
-CONDA_ENV_NAME = "{{ cookiecutter.project_slug }}"
+CONDA_ENV_NAME = "{{ cookiecutter.project_slug }}_env"
 SRC_DIR = "{{ cookiecutter.project_slug }}"
 SOURCE_CONDA = f"source {MY_CONDA_ROOT}/etc/profile.d/conda.sh"
 ACTIVATE = f"{SOURCE_CONDA} && conda activate {CONDA_ENV_NAME}"
