@@ -13,17 +13,12 @@ from invoke.exceptions import UnexpectedExit
 
 PROJECT_ROOT = str(Path(__file__).parent)
 HOME = Path(os.environ["HOME"])
-
-try:
-    MY_CONDA_ROOT = os.environ["MY_CONDA_ROOT"]
-except KeyError:
-    MY_CONDA_ROOT = list(HOME.glob("*naconda*/"))[0]
+CONDA_EXE = Path(os.environ["CONDA_EXE"])
 
 PACKAGE_NAME = "{{ cookiecutter.project_slug }}"
 CONDA_ENV_NAME = "{{ cookiecutter.project_slug }}_env"
 SRC_DIR = "{{ cookiecutter.project_slug }}"
-SOURCE_CONDA = f"source {MY_CONDA_ROOT}/etc/profile.d/conda.sh"
-ACTIVATE = f"{SOURCE_CONDA} && conda activate {CONDA_ENV_NAME}"
+ACTIVATE = f"source $(conda info --base)/bin/activate {CONDA_ENV_NAME}"
 
 
 def browser(path):
@@ -158,9 +153,11 @@ def jupyter_notebook(ctx):
 @task
 def jupyter_lab(ctx, aws=False):
     """Serve the jupyter lab."""
+    # Using the prefix context instead of `conda run...` bc I want to see the logs
     with ctx.prefix(ACTIVATE):
+
         if aws:
-            ctx.run(f"jupyter lab --no-browser --port=8888 --notebook-dir jupyter")
+            ctx.run(f"jupyter lab --no-browser --port=8889 --notebook-dir jupyter")
         else:
             ctx.run(f"jupyter lab --notebook-dir jupyter")
 
@@ -168,64 +165,104 @@ def jupyter_lab(ctx, aws=False):
 @task
 def install_jupiterlab_extensions(ctx):
     """Installs a set of jupyterlab extensions."""
-    with ctx.prefix(ACTIVATE):
-        ctx.run(f"jupyter labextension install jupyterlab-toc")
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyterlab/toc"
+    )
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyter-widgets/jupyterlab-manager"
+    )
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyter-voila/jupyterlab-preview"
+    )
 
 
 @task
 def install_nodejs(ctx):
     log.info("install nodejs with conda")
-    ctx.run("conda install nodejs --yes")
+    ctx.run(f"{CONDA_EXE} install -n {CONDA_ENV_NAME} nodejs --yes")
 
 
 @task
 def install_conda_env(ctx):
     """Installs virtual environment."""
     try:
-        with ctx.prefix(SOURCE_CONDA):
-            log.info("install conda environment")
-            ctx.run(
-                f"conda create -n {CONDA_ENV_NAME} 'python >=3.6' --file requirements.txt --yes"
-            )
+        log.info("install conda environment")
+        ctx.run(f"{CONDA_EXE} create -n {CONDA_ENV_NAME} 'python >=3.7' mamba --yes")
     except UnexpectedExit as err:
         result = err.args[0]
-        if "prefix already exists" in result.stderr:
+        if "already exists" in result.stderr:
             log.info("Conda env already exists; moving to next step.")
         else:
             log.error(err)
             raise err
 
 
-@task(install_conda_env)
+@task
+def install_bio_pkgs(ctx):
+    log.info("install bio reqs")
+    ctx.run(
+        f"{CONDA_EXE} install -n {CONDA_ENV_NAME}  --file requirements.bio.txt --yes"
+    )
+
+
+@task
+def install_base_pkgs(ctx):
+    log.info("install base reqs")
+    ctx.run(f"{CONDA_EXE} install -n {CONDA_ENV_NAME}  --file requirements.txt --yes")
+    ctx.run(f"{CONDA_EXE} run -n {CONDA_ENV_NAME} pip install -r requirements.pip.txt")
+
+
+@task
+def install_dev_reqs(ctx):
+    log.info("install dev reqs")
+    ctx.run(
+        f"{CONDA_EXE} install -n {CONDA_ENV_NAME}  --file requirements.dev.txt --yes"
+    )
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} pip install -r requirements.dev.pip.txt"
+    )
+
+
+@task
+def install_jupyter_reqs(ctx):
+    log.info("install jupyter reqs")
+    ctx.run(
+        f"{CONDA_EXE} install -n {CONDA_ENV_NAME}  --file requirements.jupyter.txt --yes"
+    )
+    ctx.run(
+        f"""{CONDA_EXE} run -n {CONDA_ENV_NAME} python -m ipykernel install --sys-prefix --name {CONDA_ENV_NAME} --display-name "{CONDA_ENV_NAME}" """
+    )
+    try:
+        install_jupyter_extentions(ctx)
+    except Exception:
+        install_nodejs(ctx)
+        install_jupyter_extentions(ctx)
+
+
+@task
+def install_jupyter_extentions(ctx):
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyterlab/toc"
+    )
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyter-widgets/jupyterlab-manager"
+    )
+    ctx.run(
+        f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyter-voila/jupyterlab-preview"
+    )
+
+
+@task(install_conda_env, install_base_pkgs, install_jupyter_reqs, install_bio_pkgs)
 def install(ctx):
     """Installs virtual environments and requirements."""
-    with ctx.prefix(ACTIVATE):
-        log.info("install reqs from conda")
-        ctx.run("conda install --file requirements.jupyter.txt --yes")
-        ctx.run("conda install --file requirements.dev.txt --yes")
-
-        log.info("install reqs from pip that have no conda pkg")
-        ctx.run("pip install -r requirements.pip.txt")
-        ctx.run("pip install -r requirements.dev.pip.txt")
-
-        log.info("install this code to allow importing from jupyter notebooks")
-        ctx.run("pip install -e .")
-
-        log.info("install this code to allow importing from jupyter notebooks")
-        ctx.run(
-            f"""python -m ipykernel install --sys-prefix --name {CONDA_ENV_NAME} --display-name "{CONDA_ENV_NAME}" """
-        )
-        try:
-            ctx.run("jupyter labextension install @jupyterlab/toc")
-        except Exception as err:
-            log.warning(f"Skipped install of jupyterlab-toc: \n{err}")
+    log.info("install the celsee package")
+    ctx.run(f"{CONDA_EXE} run -n {CONDA_ENV_NAME} pip install -e .")
 
 
 @task
 def uninstall(ctx):
     """Uninstalls virtual environments and requirements."""
-    with ctx.prefix(SOURCE_CONDA):
-        ctx.run(f"conda remove -n {CONDA_ENV_NAME} --all -y")
+    ctx.run(f"{CONDA_EXE} remove -n {CONDA_ENV_NAME} --all -y")
 
 
 @task
@@ -234,7 +271,7 @@ def nb_to_html(ctx, nbfile, outdir=None):
     if outdir is None:
         outdir = "."
 
-    with ctx.prefix(ACTIVATE):
-        ctx.run(
-            f"""jupyter nbconvert --to html_toc --ExtractOutputPreprocessor.enabled=False {nbfile} --output-dir {outdir}"""
-        )
+    ctx.run(
+        f"""{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter nbconvert --to html_toc --ExtractOutputPreprocessor.enabled=False {nbfile} --output-dir {outdir}"""
+    )
+
