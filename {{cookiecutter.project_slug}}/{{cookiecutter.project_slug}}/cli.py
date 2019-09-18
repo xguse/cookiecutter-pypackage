@@ -9,7 +9,7 @@ import click
 from logzero import logger as log
 from munch import Munch
 
-import {{cookiecutter.project_slug}}.api.commands as cmd
+import {{cookiecutter.project_slug}}.core.commands as cmd
 
 from . import configs
 
