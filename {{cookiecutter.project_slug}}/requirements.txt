@@ -10,3 +10,6 @@ xlrd
 xlwt
 tqdm>=4.10.0
 attrs
+logzero
+invoke
+recommonmark
