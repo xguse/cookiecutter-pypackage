@@ -136,7 +136,7 @@ def release(ctx):
 
 @task(clean)
 def dist(ctx):
-    """Builds source and wheel package."""
+    """Build source and wheel package."""
     with ctx.prefix(ACTIVATE):
         ctx.run(f"python setup.py sdist")
         ctx.run(f"python setup.py bdist_wheel")
@@ -164,7 +164,7 @@ def jupyter_lab(ctx, aws=False):
 
 @task
 def install_jupiterlab_extensions(ctx):
-    """Installs a set of jupyterlab extensions."""
+    """Install a set of jupyterlab extensions."""
     ctx.run(
         f"{CONDA_EXE} run -n {CONDA_ENV_NAME} jupyter labextension install @jupyterlab/toc"
     )
@@ -184,7 +184,7 @@ def install_nodejs(ctx):
 
 @task
 def install_conda_env(ctx):
-    """Installs virtual environment."""
+    """Install virtual environment."""
     try:
         log.info("install conda environment")
         ctx.run(f"{CONDA_EXE} create -n {CONDA_ENV_NAME} 'python >=3.7' mamba --yes")
@@ -252,16 +252,27 @@ def install_jupyter_extentions(ctx):
     )
 
 
-@task(install_conda_env, install_base_pkgs, install_jupyter_reqs, install_bio_pkgs)
-def install(ctx):
-    """Installs virtual environments and requirements."""
-    log.info("install the celsee package")
+@task
+def install_main(ctx):
+    """Install only the main package."""
+    log.info("install the main package")
     ctx.run(f"{CONDA_EXE} run -n {CONDA_ENV_NAME} pip install -e .")
+
+
+@task(
+    install_conda_env,
+    install_base_pkgs,
+    install_jupyter_reqs,
+    install_bio_pkgs,
+    install_main,
+)
+def install(ctx):
+    """Install virtual environments and requirements."""
 
 
 @task
 def uninstall(ctx):
-    """Uninstalls virtual environments and requirements."""
+    """UnInstall virtual environments and requirements."""
     ctx.run(f"{CONDA_EXE} remove -n {CONDA_ENV_NAME} --all -y")
 
 
