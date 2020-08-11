@@ -40,7 +40,7 @@ def clean_reqs(reqs):
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with open('HISTORY.md') as history_file:
     history = history_file.read()
 
 requirements = filter_req_paths(paths=[HOME_DIR / "requirements.txt"], func=is_pipable)
